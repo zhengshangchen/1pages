@@ -1,4 +1,4 @@
-import { getAllPosts } from './posts.server'
+import { getAllPosts } from './posts'
 import type { Category, Tag } from '~/types/taxonomy'
 
 export async function getCategories(): Promise<Category[]> {

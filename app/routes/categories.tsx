@@ -16,7 +16,7 @@ export default function Categories() {
         )
 
         const categoryMap = new Map<string, Category>()
-        
+
         modules.forEach(frontmatter => {
           const categories = frontmatter.categories || []
           categories.forEach((name: string) => {
@@ -54,7 +54,7 @@ export default function Categories() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">文章分���</h1>
+      <h1 className="text-3xl font-bold mb-8">文章分类</h1>
       <div className="grid gap-6 md:grid-cols-2">
         {categories.map(category => (
           <Link

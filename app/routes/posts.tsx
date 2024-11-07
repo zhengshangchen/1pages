@@ -1,16 +1,16 @@
 import { Link } from '@remix-run/react'
 import { useState, useEffect } from 'react'
-import { getCache, setCache } from '~/utils/cache'
+import { getAllPostsAlternative } from '~/services/posts'
 import type { PostListItem } from '~/types/taxonomy'
 
 interface MDXModule {
-  default: React.ComponentType;
+  default: React.ComponentType
   frontmatter: {
-    title: string;
-    date: string;
-    description?: string;
-    [key: string]: unknown;
-  };
+    title: string
+    date: string
+    description?: string
+    [key: string]: unknown
+  }
 }
 
 export default function Posts() {
@@ -20,37 +20,8 @@ export default function Posts() {
   useEffect(() => {
     async function loadPosts() {
       try {
-        // 尝试从缓存获取
-        const cachedPosts = getCache('posts')
-        if (cachedPosts) {
-          setPosts(cachedPosts)
-          setLoading(false)
-          return
-        }
-        
-        // 如果没有缓存，则动态导入
-        const modules = await Promise.all(
-          Object.entries(
-            import.meta.glob<MDXModule>('../../content/posts/*.mdx', { eager: true })
-          ).map(async ([path, module]) => {
-            return {
-              slug: path.replace('../../content/posts/', '').replace('.mdx', ''),
-              title: module.frontmatter.title,
-              date: module.frontmatter.date,
-              description: module.frontmatter.description,
-              frontmatter: module.frontmatter
-            } as PostListItem
-          })
-        )
-
-        const sortedPosts = modules.sort((a, b) => {
-          const dateA = new Date(a.date).getTime()
-          const dateB = new Date(b.date).getTime()
-          return dateB - dateA
-        })
-        
-        setCache('posts', sortedPosts)
-        setPosts(sortedPosts)
+        const allPosts = await getAllPostsAlternative()
+        setPosts(allPosts)
       } catch (error) {
         console.error('加载文章失败:', error)
       } finally {
@@ -75,7 +46,7 @@ export default function Posts() {
       <h1 className="text-3xl font-bold mb-8">所有文章</h1>
       <div className="grid gap-6">
         {posts.length > 0 ? (
-          posts.map(post => (
+          posts.map((post) => (
             <Link
               key={post.slug}
               to={`/posts/${post.slug}`}
@@ -91,17 +62,15 @@ export default function Posts() {
                 {new Date(post.date).toLocaleDateString('zh-CN', {
                   year: 'numeric',
                   month: 'long',
-                  day: 'numeric'
+                  day: 'numeric',
                 })}
               </div>
             </Link>
           ))
         ) : (
-          <div className="text-center py-8 text-gray-600 dark:text-gray-400">
-            暂无文章
-          </div>
+          <div className="text-center py-8 text-gray-600 dark:text-gray-400">暂无文章</div>
         )}
       </div>
     </div>
   )
-} 
+}

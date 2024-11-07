@@ -1,25 +1,21 @@
 import { useParams } from '@remix-run/react'
 import { useState, useEffect } from 'react'
 import PostContent from '~/components/posts/PostContent'
-
-const modules = import.meta.glob('../../content/posts/*.mdx')
+import { getPost } from '~/services/posts'
+import type { Post } from '~/types/post'
 
 export default function PostSlug() {
   const { slug } = useParams()
-  const [post, setPost] = useState<{ code: string; frontmatter: any } | null>(null)
+  const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadPost() {
+      if (!slug) return
+
       try {
-        const importPath = `../../content/posts/${slug}.mdx`
-        const module = await modules[importPath]?.()
-        if (module) {
-          setPost({
-            code: module.default,
-            frontmatter: module.frontmatter
-          })
-        }
+        const postData = await getPost(slug)
+        setPost(postData)
       } catch (error) {
         console.error('加载文章失败:', error)
       } finally {
@@ -27,9 +23,7 @@ export default function PostSlug() {
       }
     }
 
-    if (slug) {
-      loadPost()
-    }
+    loadPost()
   }, [slug])
 
   if (loading) {
@@ -40,10 +34,24 @@ export default function PostSlug() {
     return <div className="text-center py-8">文章未找到</div>
   }
 
+  const Content = post.content
+
   return (
     <article className="prose dark:prose-invert mx-auto px-4 py-8">
-      <h1>{post.frontmatter.title}</h1>
-      <PostContent code={post.code} />
+      <h1>{post.title}</h1>
+      <div className="text-sm text-gray-500 mb-4">
+        {post.date.toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}
+      </div>
+      {post.excerpt && (
+        <p className="text-gray-600 dark:text-gray-400 mb-8 italic">
+          {post.excerpt}
+        </p>
+      )}
+      <Content />
     </article>
   )
 }

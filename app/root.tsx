@@ -11,15 +11,6 @@ import Header from "~/components/layout/Header";
 import Footer from "~/components/layout/Footer";
 import "~/styles/tailwind.css";
 
-export const links: LinksFunction = () => {
-  return [
-    {
-      rel: "stylesheet",
-      href: "https://cdn.jsdelivr.net/npm/@tailwindcss/typography@0.5.10/dist/typography.min.css",
-    },
-  ];
-};
-
 export default function App() {
   return (
     <html lang="zh-CN" className="h-full">
