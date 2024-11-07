@@ -17,27 +17,27 @@ export default function Index() {
 
   useEffect(() => {
     async function loadPosts() {
-      const modules = import.meta.glob<MDXModule>('../../content/posts/*.mdx')
-
-      const postsData = await Promise.all(
-        Object.entries(modules).map(async ([path, module]) => {
-          const { frontmatter } = await module()
-          const slug = path.replace('../../content/posts/', '').replace('.mdx', '')
-          return {
-            slug,
-            title: frontmatter.title,
-            date: frontmatter.date,
-            description: frontmatter.description,
-            frontmatter
-          } as PostListItem
-        })
-      )
-
-      setPosts(
-        postsData.sort((a, b) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
+      try {
+        const modules = await Promise.all(
+          Object.entries(
+            import.meta.glob<MDXModule>('../../content/posts/*.mdx', { eager: true })
+          ).map(([path, module]) => ({
+            slug: path.replace('../../content/posts/', '').replace('.mdx', ''),
+            title: module.frontmatter.title,
+            date: module.frontmatter.date,
+            description: module.frontmatter.description,
+            frontmatter: module.frontmatter
+          }))
         )
-      )
+
+        setPosts(
+          modules.sort((a, b) => 
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+          )
+        )
+      } catch (error) {
+        console.error('加载文章失败:', error)
+      }
     }
 
     loadPosts()

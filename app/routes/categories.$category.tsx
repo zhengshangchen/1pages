@@ -1,28 +1,43 @@
-import { useLoaderData } from '@remix-run/react'
-import { json } from '@remix-run/node'
-import type { LoaderFunctionArgs } from '@remix-run/node'
-import { getAllPosts } from '~/services/posts.server'
-
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { category } = params
-  const allPosts = await getAllPosts()
-  
-  const posts = allPosts.filter(post => 
-    post.categories?.some(cat => 
-      cat.toLowerCase().replace(/\s+/g, '-') === category
-    )
-  )
-
-  if (!posts.length) {
-    throw new Response('分类未找到', { status: 404 })
-  }
-
-  return json({ posts, category })
-}
+import { useParams } from '@remix-run/react'
+import { useState, useEffect } from 'react'
+import type { PostListItem } from '~/types/taxonomy'
 
 export default function Category() {
-  const { posts, category } = useLoaderData<typeof loader>()
-  
+  const { category } = useParams()
+  const [posts, setPosts] = useState<PostListItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadPosts() {
+      try {
+        const modules = await Promise.all(
+          Object.entries(
+            import.meta.glob<any>('../../content/posts/*.mdx', { eager: true })
+          ).map(([_, module]) => module.frontmatter)
+        )
+
+        const filteredPosts = modules.filter(frontmatter => 
+          frontmatter.categories?.some((cat: string) => 
+            cat.toLowerCase().replace(/\s+/g, '-') === category
+          )
+        )
+        setPosts(filteredPosts)
+      } catch (error) {
+        console.error('加载分类文章失败:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (category) {
+      loadPosts()
+    }
+  }, [category])
+
+  if (loading) {
+    return <div className="text-center py-8">加载中...</div>
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">分类：{category}</h1>

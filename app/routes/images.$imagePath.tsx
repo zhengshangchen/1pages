@@ -1,35 +1,67 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
-import path from 'path';
-import fs from 'fs/promises';
+import React from 'react'
+import { useParams } from '@remix-run/react'
+import { useState, useEffect } from 'react'
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const imagePath = params.imagePath;
-  if (!imagePath) {
-    throw new Response('图片路径不存在', { status: 404 });
+export default function ImageRoute() {
+  const { imagePath } = useParams()
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadImage() {
+      try {
+        // @ts-ignore
+        /* @vite-ignore */
+        const imageModule = await import(`../../public/images/${imagePath}.png`)
+        setImageUrl(imageModule.default)
+      } catch (err) {
+        // 如果 .png 加载失败，尝试 .jpg
+        try {
+          // @ts-ignore
+          /* @vite-ignore */
+          const imageModule = await import(`../../public/images/${imagePath}.jpg`)
+          setImageUrl(imageModule.default)
+        } catch (err2) {
+          setError('图片加载失败')
+          console.error('图片加载错误:', err2)
+        }
+      }
+    }
+
+    if (imagePath) {
+      loadImage()
+    }
+  }, [imagePath])
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-500">{error}</h1>
+          <p className="mt-2 text-gray-600">请检查图片路径是否正确</p>
+        </div>
+      </div>
+    )
   }
 
-  try {
-    const fullPath = path.join(process.cwd(), 'public', 'images', imagePath);
-    const file = await fs.readFile(fullPath);
-    
-    // 根据文件扩展名设置正确的 Content-Type
-    const ext = path.extname(imagePath).toLowerCase();
-    const contentType = {
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.png': 'image/png',
-      '.gif': 'image/gif',
-      '.webp': 'image/webp',
-    }[ext] || 'application/octet-stream';
-
-    return new Response(file, {
-      headers: {
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000',
-      },
-    });
-  } catch (error) {
-    console.error('加载图片失败:', error);
-    throw new Response('图片未找到', { status: 404 });
+  if (!imageUrl) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p>加载中...</p>
+        </div>
+      </div>
+    )
   }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <img 
+        src={imageUrl} 
+        alt={imagePath}
+        className="max-w-full h-auto"
+        loading="lazy"
+      />
+    </div>
+  )
 } 

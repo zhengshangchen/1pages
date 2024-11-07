@@ -1,30 +1,60 @@
-import { json } from '@remix-run/node'
-import { useLoaderData, Link } from '@remix-run/react'
-import { getTaxonomyData } from '~/services/taxonomy.server'
-import type { MetaFunction } from '@remix-run/node'
-import clsx from 'clsx'
+import { Link } from '@remix-run/react'
+import { useState, useEffect } from 'react'
+import type { Tag } from '~/types/taxonomy'
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "标签云 | RemixPages" },
-    { name: "description", content: "浏览所有文章标签" }
-  ]
-}
+export default function Tags() {
+  const [tags, setTags] = useState<Tag[]>([])
+  const [loading, setLoading] = useState(true)
 
-export async function loader() {
-  const { tags } = await getTaxonomyData()
-  return json({ tags: Object.values(tags) })
-}
+  useEffect(() => {
+    async function loadTags() {
+      try {
+        const modules = await Promise.all(
+          Object.entries(
+            import.meta.glob<any>('../../content/posts/*.mdx', { eager: true })
+          ).map(([_, module]) => module.frontmatter)
+        )
 
-function getTagSize(count: number, maxCount: number) {
-  const sizes = ['text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl']
-  const index = Math.floor((count / maxCount) * (sizes.length - 1))
-  return sizes[index]
-}
+        const tagMap = new Map<string, Tag>()
+        
+        modules.forEach(frontmatter => {
+          const tags = frontmatter.tags || []
+          tags.forEach((name: string) => {
+            const slug = name.toLowerCase().replace(/\s+/g, '-')
+            const existing = tagMap.get(slug)
+            if (existing) {
+              existing.count++
+              existing.posts.push(frontmatter.title)
+            } else {
+              tagMap.set(slug, {
+                slug,
+                name,
+                count: 1,
+                posts: [frontmatter.title]
+              })
+            }
+          })
+        })
 
-export default function TagsIndex() {
-  const { tags } = useLoaderData<typeof loader>()
-  const maxCount = Math.max(...tags.map(tag => tag.count))
+        setTags(Array.from(tagMap.values()))
+      } catch (error) {
+        console.error('加载标签失败:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadTags()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8">标签云</h1>
+        <div className="text-center py-8">加载中...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -34,15 +64,10 @@ export default function TagsIndex() {
           <Link
             key={tag.slug}
             to={`/tags/${tag.slug}`}
-            className={clsx(
-              getTagSize(tag.count, maxCount),
-              'inline-block px-3 py-1 bg-gray-100 dark:bg-gray-800',
-              'rounded-full hover:bg-gray-200 dark:hover:bg-gray-700',
-              'transition-colors duration-200'
-            )}
+            className="inline-block px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow hover:shadow-md transition-shadow"
           >
-            {tag.name}
-            <span className="ml-1 text-gray-500 dark:text-gray-400">
+            <span className="font-medium">{tag.name}</span>
+            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
               ({tag.count})
             </span>
           </Link>

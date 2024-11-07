@@ -2,7 +2,7 @@ export interface PostListItem {
   slug: string;
   title: string;
   date: string;
-  excerpt?: string;
+  description?: string;
   frontmatter: Record<string, any>;
 }
 

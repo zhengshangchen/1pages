@@ -1,37 +1,61 @@
-import { json } from '@remix-run/node'
-import { useLoaderData, Link } from '@remix-run/react'
-import { getTaxonomyData } from '~/services/taxonomy.server'
-import type { MetaFunction } from '@remix-run/node'
+import { Link } from '@remix-run/react'
+import { useState, useEffect } from 'react'
+import type { Category } from '~/types/taxonomy'
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  if (!data) return []
-  
-  const { categories } = data
-  const categoryNames = categories.map(c => c.name).join(', ')
-  
-  return [
-    { title: "文章分类 | RemixPages" },
-    { name: "description", content: `浏览所有文章分类: ${categoryNames}` },
-    { name: "keywords", content: categoryNames },
-    // Open Graph
-    { property: "og:title", content: "文章分类 | RemixPages" },
-    { property: "og:description", content: `浏览所有文章分类: ${categoryNames}` },
-    { property: "og:type", content: "website" },
-  ]
-}
+export default function Categories() {
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
 
-export async function loader() {
-  const { categories } = await getTaxonomyData()
-  return json({ categories: Object.values(categories) })
-}
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const modules = await Promise.all(
+          Object.entries(
+            import.meta.glob<any>('../../content/posts/*.mdx', { eager: true })
+          ).map(([_, module]) => module.frontmatter)
+        )
 
-export default function CategoriesIndex() {
-  const { categories } = useLoaderData<typeof loader>()
+        const categoryMap = new Map<string, Category>()
+        
+        modules.forEach(frontmatter => {
+          const categories = frontmatter.categories || []
+          categories.forEach((name: string) => {
+            const slug = name.toLowerCase().replace(/\s+/g, '-')
+            const existing = categoryMap.get(slug)
+            if (existing) {
+              existing.count++
+              existing.posts.push(frontmatter.title)
+            } else {
+              categoryMap.set(slug, {
+                slug,
+                name,
+                count: 1,
+                posts: [frontmatter.title],
+                description: ''
+              })
+            }
+          })
+        })
+
+        setCategories(Array.from(categoryMap.values()))
+      } catch (error) {
+        console.error('加载分类失败:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadCategories()
+  }, [])
+
+  if (loading) {
+    return <div className="text-center py-8">加载中...</div>
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">文章分类</h1>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <h1 className="text-3xl font-bold mb-8">文章分���</h1>
+      <div className="grid gap-6 md:grid-cols-2">
         {categories.map(category => (
           <Link
             key={category.slug}
@@ -39,14 +63,9 @@ export default function CategoriesIndex() {
             className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition-shadow"
           >
             <h2 className="text-xl font-semibold mb-2">{category.name}</h2>
-            {category.description && (
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                {category.description}
-              </p>
-            )}
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {category.count} 篇文章
-            </span>
+            <p className="text-gray-600 dark:text-gray-400">
+              共 {category.count} 篇文章
+            </p>
           </Link>
         ))}
       </div>

@@ -29,20 +29,21 @@ export default function Posts() {
         }
         
         // 如果没有缓存，则动态导入
-        const modules = import.meta.glob<MDXModule>('../../content/posts/*.mdx', { eager: true })
+        const modules = await Promise.all(
+          Object.entries(
+            import.meta.glob<MDXModule>('../../content/posts/*.mdx', { eager: true })
+          ).map(async ([path, module]) => {
+            return {
+              slug: path.replace('../../content/posts/', '').replace('.mdx', ''),
+              title: module.frontmatter.title,
+              date: module.frontmatter.date,
+              description: module.frontmatter.description,
+              frontmatter: module.frontmatter
+            } as PostListItem
+          })
+        )
 
-        const postsData = Object.entries(modules).map(([path, module]) => {
-          const { frontmatter } = module
-          return {
-            slug: path.replace(/^\.\.\/\.\.\/content\/posts\/(.*)\.mdx$/, '$1'),
-            title: frontmatter.title,
-            date: frontmatter.date,
-            description: frontmatter.description,
-            frontmatter
-          } as PostListItem
-        })
-
-        const sortedPosts = postsData.sort((a, b) => {
+        const sortedPosts = modules.sort((a, b) => {
           const dateA = new Date(a.date).getTime()
           const dateB = new Date(b.date).getTime()
           return dateB - dateA
@@ -81,8 +82,10 @@ export default function Posts() {
               className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition-shadow"
             >
               <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
-              {post.description && (
-                <p className="text-gray-600 dark:text-gray-400 mb-4">{post.description}</p>
+              {post.frontmatter.description && (
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  {post.frontmatter.description}
+                </p>
               )}
               <div className="text-sm text-gray-500">
                 {new Date(post.date).toLocaleDateString('zh-CN', {
