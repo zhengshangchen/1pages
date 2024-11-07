@@ -17,6 +17,7 @@
     "@mdx-js/react": "^3.0.0",
     "@mdx-js/rollup": "^3.0.0",
     "@remix-run/react": "^2.13.1",
+    "@tailwindcss/typography": "^0.5.15",
     "clsx": "^2.1.1",
     "esbuild": "^0.17.6",
     "isbot": "^4.1.0",
