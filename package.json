@@ -9,10 +9,7 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "vite preview",
     "typecheck": "tsc",
-    "test": "cross-env ENABLE_TESTING=true remix vite:dev",
-    "test:build": "cross-env ENABLE_TESTING=true remix build",
     "check-posts": "tsx app/scripts/check-posts.ts",
-    "test:post": "tsx app/scripts/test-post.ts",
     "preview": "vite preview"
   },
   "dependencies": {
