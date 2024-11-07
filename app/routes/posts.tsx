@@ -2,6 +2,7 @@ import { Link } from '@remix-run/react'
 import { useState, useEffect } from 'react'
 import { getAllPostsAlternative } from '~/services/posts'
 import type { PostListItem } from '~/types/taxonomy'
+import { useLocation } from '@remix-run/react'
 
 interface MDXModule {
   default: React.ComponentType
@@ -16,6 +17,9 @@ interface MDXModule {
 export default function Posts() {
   const [posts, setPosts] = useState<PostListItem[]>([])
   const [loading, setLoading] = useState(true)
+  const location = useLocation()
+
+  console.log('Posts 路由加载，路径:', location.pathname)
 
   useEffect(() => {
     async function loadPosts() {

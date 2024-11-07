@@ -1,57 +1,24 @@
-import { useParams } from '@remix-run/react'
-import { useState, useEffect } from 'react'
-import PostContent from '~/components/posts/PostContent'
-import { getPost } from '~/services/posts'
-import type { Post } from '~/types/post'
+import { useParams, useLocation } from '@remix-run/react'
+import { useEffect } from 'react'
 
 export default function PostSlug() {
   const { slug } = useParams()
-  const [post, setPost] = useState<Post | null>(null)
-  const [loading, setLoading] = useState(true)
+  const location = useLocation()
 
   useEffect(() => {
-    async function loadPost() {
-      if (!slug) return
-
-      try {
-        const postData = await getPost(slug)
-        setPost(postData)
-      } catch (error) {
-        console.error('加载文章失败:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadPost()
-  }, [slug])
-
-  if (loading) {
-    return <div className="text-center py-8">加载中...</div>
-  }
-
-  if (!post) {
-    return <div className="text-center py-8">文章未找到</div>
-  }
-
-  const Content = post.content
+    console.log('PostSlug 组件加载')
+    console.log('当前路径:', location.pathname)
+    console.log('Slug 参数:', slug)
+  }, [slug, location.pathname])
 
   return (
-    <article className="prose dark:prose-invert mx-auto px-4 py-8">
-      <h1>{post.title}</h1>
-      <div className="text-sm text-gray-500 mb-4">
-        {post.date.toLocaleDateString('zh-CN', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })}
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-4">文章详情页测试</h1>
+      <p className="text-lg mb-4">当前路径: {location.pathname}</p>
+      <p className="text-lg mb-4">当前文章 Slug: {slug}</p>
+      <div className="p-4 bg-blue-100 dark:bg-blue-900 rounded">
+        <p>如果你看到这个内容，说明详情页路由正常工作！</p>
       </div>
-      {post.excerpt && (
-        <p className="text-gray-600 dark:text-gray-400 mb-8 italic">
-          {post.excerpt}
-        </p>
-      )}
-      <Content />
-    </article>
+    </div>
   )
 }

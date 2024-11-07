@@ -43,7 +43,7 @@ export default defineConfig({
             try {
               const frontmatter = parseYaml(yamlNode.value)
               file.data.frontmatter = frontmatter
-              
+
               // 直接导出 frontmatter 为 ES 模块
               const exportStr = `export const frontmatter = ${JSON.stringify(frontmatter)}`
               tree.children.unshift({
@@ -98,6 +98,11 @@ export default defineConfig({
         v3_fetcherPersist: true,
         v3_relativeSplatPath: true,
         v3_throwAbortReason: true,
+      },
+      routes: (defineRoutes) => {
+        return defineRoutes((route) => {
+          route('/posts/:slug', 'routes/posts.$slug.tsx')
+        })
       },
       ignoredRouteFiles: ["**/.*"],
       serverModuleFormat: "esm",

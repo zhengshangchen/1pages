@@ -28,36 +28,30 @@ const postsGlob = import.meta.glob<MDXModule>('/content/posts/*.mdx', {
 export async function getPost(slug: string): Promise<Post | null> {
     try {
         const entries = Object.entries(postsGlob)
-        const matchingEntry = entries.find(([path]) => path.endsWith(`/${slug}.mdx`))
+        const matchingEntry = entries.find(([path]) => path.includes(`/${slug}.mdx`))
 
         if (!matchingEntry) {
             console.warn(`未找到文章: ${slug}`)
             return null
         }
 
-        const [_, module] = matchingEntry as [string, MDXModule]
+        const [path, module] = matchingEntry
 
-        if (!module || typeof module !== 'object') {
-            console.warn(`无效的模块格式: ${slug}`)
-            return null
-        }
-
-        const { frontmatter } = module
-        if (!frontmatter || typeof frontmatter !== 'object') {
-            console.warn(`模块缺少 frontmatter: ${slug}`)
+        if (!module?.frontmatter) {
+            console.warn(`模块缺少 frontmatter: ${path}`)
             return null
         }
 
         return {
             slug,
+            title: module.frontmatter.title,
+            date: new Date(module.frontmatter.date),
             content: module.default,
-            title: frontmatter.title,
-            date: new Date(frontmatter.date),
-            excerpt: frontmatter.description || '',
-            frontmatter,
+            excerpt: module.frontmatter.description || '',
+            frontmatter: module.frontmatter
         }
     } catch (error) {
-        console.error(`加载文章失败 ${slug}:`, error)
+        console.error('获取文章失败:', error)
         return null
     }
 }
