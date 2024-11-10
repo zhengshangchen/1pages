@@ -1,6 +1,11 @@
 # 1Pages 博客系统
 
 1Pages 是一个基于 Remix 构建的现代化个人博客平台。它支持 MDX 内容创作、响应式设计和深色模式等特性。
+【全网首发】支持部署到良心云EdgeOne Pages的博客系统。
+
+### 【[视频教程](https://www.bilibili.com/video/BV1QEmrYZEtt/)】
+
+
 
 ## 特性
 
@@ -15,19 +20,42 @@
 
 ## 快速开始
 
-### 环境要求
+### EdgeOne Pages部署步骤
 
-- Node.js >= 18
-- pnpm >= 8.0 （推荐，也可使用npm）
+1. 首先注册登录EdgeOne [网址](https://edgeone.ai/)
+
+2. fork我的项目(github) [网址](https://github.com/aigem/1pages)
+
+3. 新建Pages项目
+
+4. 绑定你们的1pages仓库地址
+
+5. 部署
+   ```
+   构建部署配置:
+
+   框架预设	未设置
+   根目录	/
+   输出目录	build/client
+   编译命令	npm run build
+   安装命令	npm install
+   ```
+
+6. 绑定自定义域名
+（可选）不绑定也可以访问。[注册域名教程](https://www.bilibili.com/video/BV14r421E7X6/)
+
+7. 发布文章
+content/posts 目录下创建 .mdx 文件，根据模板创建即可。查看下面的创建文章章节。
 
 ### 本地安装步骤
 
 1. 克隆仓库：
    git clone https://github.com/aigem/1pages.git
    cd 1pages
-
+   
 2. 安装依赖：
    pnpm install
+   可以设置pnpm为国内源，速度更快。[视频教程](https://www.bilibili.com/video/BV1DJDDYfEfD/)
 
 3. 创建内容目录：
    mkdir -p content/posts
@@ -37,7 +65,7 @@
 
 ### 创建文章
 
-在 content/posts 目录下创建 .mdx 文件：
+1. 在 content/posts 目录下创建 .mdx 文件：
 
 ---
 title: 文章标题
@@ -47,6 +75,10 @@ tags: [标签1, 标签2]
 ---
 
 文章内容...
+
+2. 使用自家MDX编辑器，发文更方便。
+
+即将上线，敬请期待。
 
 ## 部署
 
