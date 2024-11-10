@@ -11,7 +11,7 @@ export default function Footer() {
               关于
             </h3>
             <p className="mt-4 text-base text-gray-600 dark:text-gray-300">
-              RemixPages 是一个基于 Remix 和 Cloudflare Pages 构建的现代化个人博客平台。
+              1Pages 是一个基于 Remix 和 Cloudflare Pages 构建的现代化个人博客平台。
             </p>
           </div>
 
@@ -64,7 +64,7 @@ export default function Footer() {
         {/* 版权信息 */}
         <div className="mt-8 border-t border-gray-200 dark:border-gray-800 pt-8 text-center">
           <p className="text-base text-gray-500 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} RemixPages. All rights reserved.
+            &copy; {new Date().getFullYear()} 1Pages. All rights reserved.
           </p>
         </div>
       </div>
