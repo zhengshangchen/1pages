@@ -1,10 +1,11 @@
 ---
-title: "EdgeOne Image Renderer 完全指南：5分钟掌握边缘图像渲染"
-date: 2024-04-27
-author: "EdgeOne团队" 
+title: EdgeOne Image Renderer 完全指南：5分钟掌握边缘图像渲染
+slug: edgeone-image-renderer
+date: 2024-11-11
 tags: ["Image Renderer", "边缘计算", "图像处理", "开发教程"]
-description: "一文掌握 EdgeOne Image Renderer 的核心功能与实战技巧，从入门到精通的完整指南。"
+description: 一文掌握 EdgeOne Image Renderer 的核心功能与实战技巧，从入门到精通的完整指南
 ---
+
 
 ![EdgeOne Image Renderer Banner](https://edgeone.ai/images/image-renderer-banner.png)
 
@@ -80,8 +81,7 @@ description: "一文掌握 EdgeOne Image Renderer 的核心功能与实战技巧
 
 ### 1. 创建模板
 
-```content/posts/edgeone-image-renderer.mdx: 创建模板部分
-
+```javascript
 // 创建基础模板
 const template = new ImageRenderer({
   width: 1200,
@@ -101,8 +101,7 @@ template.addText({
 
 ### 2. 动态替换内容
 
-```content/posts/edgeone-image-renderer.mdx: 动态替换内容部分
-
+```javascript
 // 定义变量
 const variables = {
   title: '${title}',
@@ -127,8 +126,7 @@ async function generateImages(data) {
 
 ### 3. 分发使用
 
-```content/posts/edgeone-image-renderer.mdx: 分发使用部分
-
+```javascript
 // 获取图片URL
 const imageUrl = await template.getShareUrl({
   expires: '2h',
@@ -160,8 +158,7 @@ const cdnUrl = `https://cdn.edgeone.ai/${imageUrl}`;
 
 ### 电商场景示例
 
-```content/posts/edgeone-image-renderer.mdx: 电商场景示例部分
-
+```javascript
 // 创建商品促销图
 const createPromoImage = async (product) => {
   const template = new ImageRenderer({
@@ -179,8 +176,7 @@ const createPromoImage = async (product) => {
 
 ### 社交分享示例
 
-```content/posts/edgeone-image-renderer.mdx: 社交分享示例部分
-
+```javascript
 // 生成分享卡片
 const createShareCard = async (userData) => {
   const template = new ImageRenderer({
@@ -213,8 +209,6 @@ const createShareCard = async (userData) => {
 ## 🎯 总结
 
 EdgeOne Image Renderer 为现代图像处理提供了强大而灵活的解决方案。通过本文的介绍，相信你已经掌握了其核心功能和使用方法。现在就开始使用吧，让图像处理变得更简单、更高效！
-
----
 
 > 💡 **提示**：如需技术支持或有任何疑问，欢迎通过以下方式联系我们：
 > - 官方文档：[docs.edgeone.ai](https://docs.edgeone.ai)
